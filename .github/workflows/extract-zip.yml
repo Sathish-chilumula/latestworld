@@ -11,21 +11,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Download ZIP file
         run: |
-          curl -L -o latestworld-v2-final.zip <URL_TO_LATESTWORLD_V2_FINAL_ZIP>
+          curl -L -o latestworld-v2-final.zip https://github.com/Sathish-chilumula/latestworld/raw/main/latestworld-v2-final.zip
 
       - name: Extract ZIP file
         run: |
-          unzip latestworld-v2-final.zip -d extracted_files
+          unzip -o latestworld-v2-final.zip -d ./
+
+      - name: Remove ZIP file
+        run: |
+          rm latestworld-v2-final.zip
 
       - name: Commit and push extracted files
         run: |
-          git config --global user.email "you@example.com"
+          git config --global user.email "chilumulas62@gmail.com"
           git config --global user.name "Sathish-chilumula"
-          mv extracted_files/* ./
           git add .
-          git commit -m "Extracted files from latestworld-v2-final.zip on ${{ github.event.head_commit.timestamp }}"
+          git commit -m "Extract files from latestworld-v2-final.zip" || echo "No changes to commit"
           git push origin main
