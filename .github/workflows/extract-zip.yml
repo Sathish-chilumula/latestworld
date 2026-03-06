@@ -1,0 +1,31 @@
+name: Extract and Commit ZIP
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  extract_and_commit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Download ZIP file
+        run: |
+          curl -L -o latestworld-v2-final.zip <URL_TO_LATESTWORLD_V2_FINAL_ZIP>
+
+      - name: Extract ZIP file
+        run: |
+          unzip latestworld-v2-final.zip -d extracted_files
+
+      - name: Commit and push extracted files
+        run: |
+          git config --global user.email "you@example.com"
+          git config --global user.name "Sathish-chilumula"
+          mv extracted_files/* ./
+          git add .
+          git commit -m "Extracted files from latestworld-v2-final.zip on ${{ github.event.head_commit.timestamp }}"
+          git push origin main
