@@ -5,7 +5,7 @@ import Link from 'next/link'
 
 export async function generateStaticParams() {
   const { news } = await getAllSlugs()
-  return news.map((item) => ({ slug: item.slug }))
+  return news.map((item: any) => ({ slug: item.slug }))
 }
 
 export default async function NewsDetailPage({ params }: { params: Promise<{ slug: string }> }) {

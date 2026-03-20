@@ -5,7 +5,7 @@ import Link from 'next/link'
 
 export async function generateStaticParams() {
   const { crypto } = await getAllSlugs()
-  return crypto.map((item) => ({ slug: item.slug }))
+  return crypto.map((item: any) => ({ slug: item.slug }))
 }
 
 export default async function CoinPage({ params }: { params: Promise<{ slug: string }> }) {

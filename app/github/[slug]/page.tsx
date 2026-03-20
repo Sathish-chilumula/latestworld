@@ -5,7 +5,7 @@ import Link from 'next/link'
 
 export async function generateStaticParams() {
   const { github } = await getAllSlugs()
-  return github.map((item) => ({ slug: item.slug }))
+  return github.map((item: any) => ({ slug: item.slug }))
 }
 
 export default async function GithubDetailPage({ params }: { params: Promise<{ slug: string }> }) {

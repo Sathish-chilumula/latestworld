@@ -5,7 +5,7 @@ import Link from 'next/link'
 
 export async function generateStaticParams() {
   const { aitools } = await getAllSlugs()
-  return aitools.map((item) => ({ slug: item.slug }))
+  return aitools.map((item: any) => ({ slug: item.slug }))
 }
 
 export default async function AIToolDetailPage({ params }: { params: Promise<{ slug: string }> }) {
