@@ -1,0 +1,35 @@
+{
+  "name": "latestworld",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "crypto:update": "npx ts-node --project tsconfig.scripts.json scripts/cryptoUpdate.ts",
+    "news:update": "npx ts-node --project tsconfig.scripts.json scripts/techNewsUpdate.ts",
+    "startups:update": "npx ts-node --project tsconfig.scripts.json scripts/startupNewsUpdate.ts",
+    "github:update": "npx ts-node --project tsconfig.scripts.json scripts/githubUpdate.ts",
+    "aitools:update": "npx ts-node --project tsconfig.scripts.json scripts/aiToolsUpdate.ts",
+    "jobs:update": "npx ts-node --project tsconfig.scripts.json scripts/jobsUpdate.ts"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.0",
+    "framer-motion": "^11.3.0",
+    "next": "^14.2.5",
+    "next-themes": "^0.3.0",
+    "react": "^18",
+    "react-dom": "^18"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "autoprefixer": "^10.0.1",
+    "postcss": "^8",
+    "tailwindcss": "^3.4.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5"
+  }
+}
