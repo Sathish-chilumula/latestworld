@@ -1,0 +1,30 @@
+name: Daily Update (GitHub + AI Tools)
+
+on:
+  schedule:
+    - cron: '0 2 * * *'   # Every day at 2AM UTC
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm install
+      - name: Update GitHub trending
+        run: npx ts-node --project tsconfig.scripts.json scripts/githubUpdate.ts
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      - name: Update AI tools
+        run: npx ts-node --project tsconfig.scripts.json scripts/aiToolsUpdate.ts
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          PRODUCTHUNT_TOKEN: ${{ secrets.PRODUCTHUNT_TOKEN }}
+      - name: Trigger Cloudflare Pages rebuild
+        if: success()
+        run: curl -X POST "${{ secrets.CLOUDFLARE_PAGES_DEPLOY_HOOK }}"
