@@ -1,1 +1,0 @@
-name: Extract Zip\n\non: [push]\n\npermissions:\n  contents: write\n\njobs:\n  build:\n    runs-on: ubuntu-latest\n    steps:\n      - name: Checkout\n        uses: actions/checkout@v2\n        with:\n          token: ${{ secrets.GITHUB_TOKEN }}\n      - name: Extract Zip\n        run: |\n          mkdir extracted\n          unzip file.zip -d extracted\n
