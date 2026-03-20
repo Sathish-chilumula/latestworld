@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "build:cloudflare": "next build",
     "crypto:update": "npx ts-node --project tsconfig.scripts.json scripts/cryptoUpdate.ts",
     "news:update": "npx ts-node --project tsconfig.scripts.json scripts/techNewsUpdate.ts",
     "startups:update": "npx ts-node --project tsconfig.scripts.json scripts/startupNewsUpdate.ts",
