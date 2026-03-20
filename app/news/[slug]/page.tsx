@@ -8,12 +8,13 @@ export async function generateStaticParams() {
   return news.map((item) => ({ slug: item.slug }))
 }
 
-export default async function NewsDetailPage({ params }: { params: { slug: string } }) {
+export default async function NewsDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
   const [article, all] = await Promise.all([
-    getNewsItem(params.slug),
+    getNewsItem(slug),
     getTechNews(8)
   ])
-  const related = all.filter(x => x.slug !== params.slug).slice(0, 3)
+  const related = all.filter(x => x.slug !== slug).slice(0, 3)
 
   if (!article) return <div style={{ padding: '4rem', textAlign: 'center', fontFamily: 'Poppins', color: 'var(--muted)' }}>Article not found</div>
 

@@ -8,12 +8,13 @@ export async function generateStaticParams() {
   return github.map((item) => ({ slug: item.slug }))
 }
 
-export default async function GithubDetailPage({ params }: { params: { slug: string } }) {
+export default async function GithubDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
   const [repo, all] = await Promise.all([
-    getGithubProject(params.slug),
+    getGithubProject(slug),
     getGithubProjects(8)
   ])
-  const related = all.filter(x => x.slug !== params.slug).slice(0, 4)
+  const related = all.filter(x => x.slug !== slug).slice(0, 4)
 
   if (!repo) return <div style={{ padding: '4rem', textAlign: 'center', fontFamily: 'Poppins', color: 'var(--muted)' }}>Project not found</div>
 

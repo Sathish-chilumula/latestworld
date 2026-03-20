@@ -8,12 +8,13 @@ export async function generateStaticParams() {
   return crypto.map((item) => ({ slug: item.slug }))
 }
 
-export default async function CoinPage({ params }: { params: { slug: string } }) {
+export default async function CoinPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
   const [coin, all] = await Promise.all([
-    getCryptoCoin(params.slug),
+    getCryptoCoin(slug),
     getCryptoCoins(10)
   ])
-  const related = all.filter(x => x.slug !== params.slug).slice(0, 4)
+  const related = all.filter(x => x.slug !== slug).slice(0, 4)
 
   if (!coin) return <div style={{ padding: '4rem', textAlign: 'center', fontFamily: 'Poppins', color: 'var(--muted)' }}>Coin not found</div>
 

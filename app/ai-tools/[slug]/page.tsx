@@ -8,12 +8,13 @@ export async function generateStaticParams() {
   return aitools.map((item) => ({ slug: item.slug }))
 }
 
-export default async function AIToolDetailPage({ params }: { params: { slug: string } }) {
+export default async function AIToolDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
   const [tool, all] = await Promise.all([
-    getAITool(params.slug),
+    getAITool(slug),
     getAITools(8)
   ])
-  const related = all.filter(x => x.slug !== params.slug).slice(0, 4)
+  const related = all.filter(x => x.slug !== slug).slice(0, 4)
 
   if (!tool) return <div style={{ padding: '4rem', textAlign: 'center', fontFamily: 'Poppins', color: 'var(--muted)' }}>Tool not found</div>
 

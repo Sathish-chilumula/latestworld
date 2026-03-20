@@ -8,12 +8,13 @@ export async function generateStaticParams() {
   return jobs.map((item) => ({ slug: item.slug }))
 }
 
-export default async function JobDetailPage({ params }: { params: { slug: string } }) {
+export default async function JobDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
   const [job, all] = await Promise.all([
-    getJob(params.slug),
+    getJob(slug),
     getJobs(8)
   ])
-  const related = all.filter(x => x.slug !== params.slug).slice(0, 3)
+  const related = all.filter(x => x.slug !== slug).slice(0, 3)
 
   if (!job) return <div style={{ padding: '4rem', textAlign: 'center', fontFamily: 'Poppins', color: 'var(--muted)' }}>Job not found</div>
 

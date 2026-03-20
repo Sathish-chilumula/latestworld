@@ -8,12 +8,13 @@ export async function generateStaticParams() {
   return startups.map((item) => ({ slug: item.slug }))
 }
 
-export default async function StartupDetailPage({ params }: { params: { slug: string } }) {
+export default async function StartupDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
   const [article, all] = await Promise.all([
-    getStartupItem(params.slug),
+    getStartupItem(slug),
     getStartupNews(8)
   ])
-  const related = all.filter(x => x.slug !== params.slug).slice(0, 3)
+  const related = all.filter(x => x.slug !== slug).slice(0, 3)
 
   if (!article) return <div style={{ padding: '4rem', textAlign: 'center', fontFamily: 'Poppins', color: 'var(--muted)' }}>Article not found</div>
 
