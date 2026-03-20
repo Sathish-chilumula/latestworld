@@ -4,19 +4,46 @@ import { Breadcrumb, FAQ, AdSlot } from '@/components/UI'
 import Link from 'next/link'
 
 export async function generateStaticParams() {
-  const { aitools } = await getAllSlugs()
-  return aitools.map((item: any) => ({ slug: item.slug }))
+  try {
+    const { aitools } = await getAllSlugs()
+    return (aitools || []).map((item: any) => ({ slug: item.slug }))
+  } catch (error) {
+    console.warn('[AI-Tools generateStaticParams] Failed to fetch slugs for static generation:', error)
+    return []
+  }
 }
 
 export default async function AIToolDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
-  const [tool, all] = await Promise.all([
-    getAITool(slug),
-    getAITools(8)
-  ])
-  const related = all.filter(x => x.slug !== slug).slice(0, 4)
+  
+  // Check for required keys for visibility in logs
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) console.warn('[AI-Tools] Missing NEXT_PUBLIC_SUPABASE_URL')
+  if (!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) console.warn('[AI-Tools] Missing NEXT_PUBLIC_SUPABASE_ANON_KEY')
+  // Add other API key checks here as they are added (e.g. AI, Product Hunt as mentioned by user)
 
-  if (!tool) return <div style={{ padding: '4rem', textAlign: 'center', fontFamily: 'Poppins', color: 'var(--muted)' }}>Tool not found</div>
+  let tool: AITool | null = null
+  let related: AITool[] = []
+
+  try {
+    const [fetchedTool, allTools] = await Promise.all([
+      getAITool(slug),
+      getAITools(8)
+    ])
+    tool = fetchedTool
+    related = (allTools || []).filter(x => x.slug !== slug).slice(0, 4)
+  } catch (error) {
+    console.error(`[AI-Tools] Error fetching data for slug "${slug}":`, error)
+  }
+
+  if (!tool) {
+    return (
+      <div style={{ padding: '4rem', textAlign: 'center', fontFamily: 'Poppins', color: 'var(--muted)' }}>
+        <h1 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Tool not found</h1>
+        <p>This tool may not exist or there was an error fetching the data.</p>
+        <Link href="/" style={{ color: '#7c3aed', textDecoration: 'underline', marginTop: '1rem', display: 'inline-block' }}>Back to Home</Link>
+      </div>
+    )
+  }
 
   const faqItems = [
     { q: `What does ${tool.name} do?`, a: tool.description || tool.tagline || `${tool.name} is an AI tool that helps users with various tasks.` },

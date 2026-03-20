@@ -39,61 +39,73 @@ export interface Job {
 
 // ── Fetchers ───────────────────────────────────────
 export async function getCryptoCoins(limit = 50) {
+  if (!supabase) return [] as CryptoCoin[]
   const { data, error } = await supabase.from('crypto').select('*').order('market_cap_rank', { ascending: true }).limit(limit)
   if (error) { console.error(error); return [] }
   return (data || []) as CryptoCoin[]
 }
 export async function getCryptoCoin(slug: string) {
+  if (!supabase) return null
   const { data, error } = await supabase.from('crypto').select('*').eq('slug', slug).single()
   if (error) return null
   return data as CryptoCoin
 }
 export async function getTechNews(limit = 30) {
+  if (!supabase) return [] as TechNews[]
   const { data, error } = await supabase.from('tech_news').select('*').order('published_at', { ascending: false }).limit(limit)
   if (error) { console.error(error); return [] }
   return (data || []) as TechNews[]
 }
 export async function getNewsItem(slug: string) {
+  if (!supabase) return null
   const { data, error } = await supabase.from('tech_news').select('*').eq('slug', slug).single()
   if (error) return null
   return data as TechNews
 }
 export async function getStartupNews(limit = 30) {
+  if (!supabase) return [] as StartupNews[]
   const { data, error } = await supabase.from('startup_news').select('*').order('published_at', { ascending: false }).limit(limit)
   if (error) { console.error(error); return [] }
   return (data || []) as StartupNews[]
 }
 export async function getStartupItem(slug: string) {
+  if (!supabase) return null
   const { data, error } = await supabase.from('startup_news').select('*').eq('slug', slug).single()
   if (error) return null
   return data as StartupNews
 }
 export async function getAITools(limit = 30) {
+  if (!supabase) return [] as AITool[]
   const { data, error } = await supabase.from('ai_tools').select('*').order('votes', { ascending: false }).limit(limit)
   if (error) { console.error(error); return [] }
   return (data || []) as AITool[]
 }
 export async function getAITool(slug: string) {
+  if (!supabase) return null
   const { data, error } = await supabase.from('ai_tools').select('*').eq('slug', slug).single()
   if (error) return null
   return data as AITool
 }
 export async function getGithubProjects(limit = 30) {
+  if (!supabase) return [] as GithubProject[]
   const { data, error } = await supabase.from('github_projects').select('*').order('stars', { ascending: false }).limit(limit)
   if (error) { console.error(error); return [] }
   return (data || []) as GithubProject[]
 }
 export async function getGithubProject(slug: string) {
+  if (!supabase) return null
   const { data, error } = await supabase.from('github_projects').select('*').eq('slug', slug).single()
   if (error) return null
   return data as GithubProject
 }
 export async function getJobs(limit = 30) {
+  if (!supabase) return [] as Job[]
   const { data, error } = await supabase.from('tech_jobs').select('*').order('created_at', { ascending: false }).limit(limit)
   if (error) { console.error(error); return [] }
   return (data || []) as Job[]
 }
 export async function getJob(slug: string) {
+  if (!supabase) return null
   const { data, error } = await supabase.from('tech_jobs').select('*').eq('slug', slug).single()
   if (error) return null
   return data as Job
@@ -107,13 +119,23 @@ export async function getHomepageData() {
 }
 // Slugs for sitemap
 export async function getAllSlugs() {
-  const [crypto, news, github, aitools, jobs, startups] = await Promise.all([
-    supabase.from('crypto').select('slug,updated_at'),
-    supabase.from('tech_news').select('slug,published_at'),
-    supabase.from('github_projects').select('slug,updated_at'),
-    supabase.from('ai_tools').select('slug,created_at'),
-    supabase.from('tech_jobs').select('slug,created_at'),
-    supabase.from('startup_news').select('slug,published_at'),
-  ])
-  return { crypto: crypto.data || [], news: news.data || [], github: github.data || [], aitools: aitools.data || [], jobs: jobs.data || [], startups: startups.data || [] }
+  const empty = { crypto: [], news: [], github: [], aitools: [], jobs: [], startups: [] }
+  if (!supabase) {
+    console.warn('[getAllSlugs] Supabase client not available (missing env vars). Returning empty slugs.')
+    return empty
+  }
+  try {
+    const [crypto, news, github, aitools, jobs, startups] = await Promise.all([
+      supabase.from('crypto').select('slug,updated_at'),
+      supabase.from('tech_news').select('slug,published_at'),
+      supabase.from('github_projects').select('slug,updated_at'),
+      supabase.from('ai_tools').select('slug,created_at'),
+      supabase.from('tech_jobs').select('slug,created_at'),
+      supabase.from('startup_news').select('slug,published_at'),
+    ])
+    return { crypto: crypto.data || [], news: news.data || [], github: github.data || [], aitools: aitools.data || [], jobs: jobs.data || [], startups: startups.data || [] }
+  } catch (e) {
+    console.warn('[getAllSlugs] Failed to fetch slugs:', e)
+    return empty
+  }
 }
