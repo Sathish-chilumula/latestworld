@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "build:cloudflare": "next build",
+    "build:cloudflare": "npx @opennextjs/cloudflare build",
     "crypto:update": "npx ts-node --project tsconfig.scripts.json scripts/cryptoUpdate.ts",
     "news:update": "npx ts-node --project tsconfig.scripts.json scripts/techNewsUpdate.ts",
     "startups:update": "npx ts-node --project tsconfig.scripts.json scripts/startupNewsUpdate.ts",
@@ -24,6 +24,7 @@
     "react-dom": "^18"
   },
   "devDependencies": {
+    "@opennextjs/cloudflare": "^1.17.1",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
