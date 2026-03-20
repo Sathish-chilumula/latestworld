@@ -4,19 +4,44 @@ import { Breadcrumb, FAQ, AdSlot } from '@/components/UI'
 import Link from 'next/link'
 
 export async function generateStaticParams() {
-  const { jobs } = await getAllSlugs()
-  return jobs.map((item: any) => ({ slug: item.slug }))
+  try {
+    const { jobs } = await getAllSlugs()
+    return (jobs || []).map((item: any) => ({ slug: item.slug }))
+  } catch (error) {
+    console.warn('[Jobs generateStaticParams] Failed to fetch slugs for static generation:', error)
+    return []
+  }
 }
 
 export default async function JobDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
-  const [job, all] = await Promise.all([
-    getJob(slug),
-    getJobs(8)
-  ])
-  const related = all.filter(x => x.slug !== slug).slice(0, 3)
+  
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) console.warn('[Jobs] Missing NEXT_PUBLIC_SUPABASE_URL')
+  if (!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) console.warn('[Jobs] Missing NEXT_PUBLIC_SUPABASE_ANON_KEY')
 
-  if (!job) return <div style={{ padding: '4rem', textAlign: 'center', fontFamily: 'Poppins', color: 'var(--muted)' }}>Job not found</div>
+  let job: Job | null = null
+  let related: Job[] = []
+
+  try {
+    const [fetchedJob, allJobs] = await Promise.all([
+      getJob(slug),
+      getJobs(8)
+    ])
+    job = fetchedJob
+    related = (allJobs || []).filter(x => x.slug !== slug).slice(0, 3)
+  } catch (error) {
+    console.error(`[Jobs] Error fetching data for slug "${slug}":`, error)
+  }
+
+  if (!job) {
+    return (
+      <div style={{ padding: '4rem', textAlign: 'center', fontFamily: 'Poppins', color: 'var(--muted)' }}>
+        <h1 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Job not found</h1>
+        <p>This job may not exist or there was an error fetching the data.</p>
+        <Link href="/" style={{ color: '#7c3aed', textDecoration: 'underline', marginTop: '1rem', display: 'inline-block' }}>Back to Home</Link>
+      </div>
+    )
+  }
 
   const salary = formatSalary(job.salary_min, job.salary_max, job.salary)
   const faqItems = [

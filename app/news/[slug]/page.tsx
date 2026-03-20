@@ -4,19 +4,44 @@ import { Breadcrumb, FAQ, AdSlot } from '@/components/UI'
 import Link from 'next/link'
 
 export async function generateStaticParams() {
-  const { news } = await getAllSlugs()
-  return news.map((item: any) => ({ slug: item.slug }))
+  try {
+    const { news } = await getAllSlugs()
+    return (news || []).map((item: any) => ({ slug: item.slug }))
+  } catch (error) {
+    console.warn('[News generateStaticParams] Failed to fetch slugs for static generation:', error)
+    return []
+  }
 }
 
 export default async function NewsDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
-  const [article, all] = await Promise.all([
-    getNewsItem(slug),
-    getTechNews(8)
-  ])
-  const related = all.filter(x => x.slug !== slug).slice(0, 3)
+  
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) console.warn('[News] Missing NEXT_PUBLIC_SUPABASE_URL')
+  if (!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) console.warn('[News] Missing NEXT_PUBLIC_SUPABASE_ANON_KEY')
 
-  if (!article) return <div style={{ padding: '4rem', textAlign: 'center', fontFamily: 'Poppins', color: 'var(--muted)' }}>Article not found</div>
+  let article: TechNews | null = null
+  let related: TechNews[] = []
+
+  try {
+    const [fetchedArticle, allNews] = await Promise.all([
+      getNewsItem(slug),
+      getTechNews(8)
+    ])
+    article = fetchedArticle
+    related = (allNews || []).filter(x => x.slug !== slug).slice(0, 3)
+  } catch (error) {
+    console.error(`[News] Error fetching data for slug "${slug}":`, error)
+  }
+
+  if (!article) {
+    return (
+      <div style={{ padding: '4rem', textAlign: 'center', fontFamily: 'Poppins', color: 'var(--muted)' }}>
+        <h1 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Article not found</h1>
+        <p>This article may not exist or there was an error fetching the data.</p>
+        <Link href="/" style={{ color: '#7c3aed', textDecoration: 'underline', marginTop: '1rem', display: 'inline-block' }}>Back to Home</Link>
+      </div>
+    )
+  }
 
   const faqItems = [
     { q: `What is this news about?`, a: article.summary || article.title },

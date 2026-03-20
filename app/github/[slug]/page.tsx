@@ -4,19 +4,44 @@ import { Breadcrumb, FAQ, AdSlot } from '@/components/UI'
 import Link from 'next/link'
 
 export async function generateStaticParams() {
-  const { github } = await getAllSlugs()
-  return github.map((item: any) => ({ slug: item.slug }))
+  try {
+    const { github } = await getAllSlugs()
+    return (github || []).map((item: any) => ({ slug: item.slug }))
+  } catch (error) {
+    console.warn('[GitHub generateStaticParams] Failed to fetch slugs for static generation:', error)
+    return []
+  }
 }
 
 export default async function GithubDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
-  const [repo, all] = await Promise.all([
-    getGithubProject(slug),
-    getGithubProjects(8)
-  ])
-  const related = all.filter(x => x.slug !== slug).slice(0, 4)
+  
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) console.warn('[GitHub] Missing NEXT_PUBLIC_SUPABASE_URL')
+  if (!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) console.warn('[GitHub] Missing NEXT_PUBLIC_SUPABASE_ANON_KEY')
 
-  if (!repo) return <div style={{ padding: '4rem', textAlign: 'center', fontFamily: 'Poppins', color: 'var(--muted)' }}>Project not found</div>
+  let repo: GithubProject | null = null
+  let related: GithubProject[] = []
+
+  try {
+    const [fetchedRepo, allRepos] = await Promise.all([
+      getGithubProject(slug),
+      getGithubProjects(8)
+    ])
+    repo = fetchedRepo
+    related = (allRepos || []).filter(x => x.slug !== slug).slice(0, 4)
+  } catch (error) {
+    console.error(`[GitHub] Error fetching data for slug "${slug}":`, error)
+  }
+
+  if (!repo) {
+    return (
+      <div style={{ padding: '4rem', textAlign: 'center', fontFamily: 'Poppins', color: 'var(--muted)' }}>
+        <h1 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Project not found</h1>
+        <p>This project may not exist or there was an error fetching the data.</p>
+        <Link href="/" style={{ color: '#7c3aed', textDecoration: 'underline', marginTop: '1rem', display: 'inline-block' }}>Back to Home</Link>
+      </div>
+    )
+  }
 
   const faqItems = [
     { q: `What is ${repo.repo_name?.split('/')[1]}?`, a: repo.description || `${repo.repo_name} is an open-source project on GitHub with ${repo.stars?.toLocaleString()} stars.` },

@@ -4,19 +4,44 @@ import { Breadcrumb, FAQ, AdSlot } from '@/components/UI'
 import Link from 'next/link'
 
 export async function generateStaticParams() {
-  const { crypto } = await getAllSlugs()
-  return crypto.map((item: any) => ({ slug: item.slug }))
+  try {
+    const { crypto } = await getAllSlugs()
+    return (crypto || []).map((item: any) => ({ slug: item.slug }))
+  } catch (error) {
+    console.warn('[Crypto generateStaticParams] Failed to fetch slugs for static generation:', error)
+    return []
+  }
 }
 
 export default async function CoinPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
-  const [coin, all] = await Promise.all([
-    getCryptoCoin(slug),
-    getCryptoCoins(10)
-  ])
-  const related = all.filter(x => x.slug !== slug).slice(0, 4)
+  
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) console.warn('[Crypto] Missing NEXT_PUBLIC_SUPABASE_URL')
+  if (!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) console.warn('[Crypto] Missing NEXT_PUBLIC_SUPABASE_ANON_KEY')
 
-  if (!coin) return <div style={{ padding: '4rem', textAlign: 'center', fontFamily: 'Poppins', color: 'var(--muted)' }}>Coin not found</div>
+  let coin: CryptoCoin | null = null
+  let related: CryptoCoin[] = []
+
+  try {
+    const [fetchedCoin, allCoins] = await Promise.all([
+      getCryptoCoin(slug),
+      getCryptoCoins(10)
+    ])
+    coin = fetchedCoin
+    related = (allCoins || []).filter(x => x.slug !== slug).slice(0, 4)
+  } catch (error) {
+    console.error(`[Crypto] Error fetching data for slug "${slug}":`, error)
+  }
+
+  if (!coin) {
+    return (
+      <div style={{ padding: '4rem', textAlign: 'center', fontFamily: 'Poppins', color: 'var(--muted)' }}>
+        <h1 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Coin not found</h1>
+        <p>This coin may not exist or there was an error fetching the data.</p>
+        <Link href="/" style={{ color: '#7c3aed', textDecoration: 'underline', marginTop: '1rem', display: 'inline-block' }}>Back to Home</Link>
+      </div>
+    )
+  }
 
   const up = (coin.change_24h || 0) >= 0
   const faqItems = [
