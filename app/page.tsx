@@ -3,7 +3,6 @@ import Link from 'next/link'
 import { CryptoTicker, AdSlot, SectionHeader, FadeInSection, StaggerGrid, StaggerItem } from '@/components/UI'
 import { formatPrice, formatLargeNum, formatSalary, timeAgo, truncate } from '@/utils/helpers'
 
-export const revalidate = 3600 // Revalidate every hour
 
 export default async function HomePage() {
   const data = await getHomepageData()

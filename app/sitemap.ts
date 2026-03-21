@@ -1,3 +1,5 @@
+export const dynamic = 'force-static'
+
 import { getAllSlugs } from '@/lib/supabase'
 
 export default async function sitemap() {
@@ -22,8 +24,6 @@ export default async function sitemap() {
   let dynamics: any[] = []
   try {
     const { crypto, news, github, aitools, jobs, startups } = await getAllSlugs()
-    // Every slug from every table is automatically included here
-    // When cron jobs add new rows, they appear in sitemap after next build
     crypto.forEach((r: any) => dynamics.push({ url: `${base}/crypto/${r.slug}`, lastModified: new Date(r.updated_at), changeFrequency: 'hourly' as const, priority: 0.8 }))
     news.forEach((r: any) => dynamics.push({ url: `${base}/news/${r.slug}`, lastModified: new Date(r.published_at), changeFrequency: 'daily' as const, priority: 0.75 }))
     jobs.forEach((r: any) => dynamics.push({ url: `${base}/jobs/${r.slug}`, lastModified: new Date(r.created_at), changeFrequency: 'daily' as const, priority: 0.75 }))
