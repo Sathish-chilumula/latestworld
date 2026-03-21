@@ -2,16 +2,16 @@ name: Update Tech Jobs
 
 on:
   schedule:
-    - cron: '0 */12 * * *'  # Every 12 hours
+    - cron: '0 */12 * * *'
   workflow_dispatch:
 
 jobs:
   update:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: '20', cache: 'npm' }
+      - uses: actions/checkout@v4.2.2
+      - uses: actions/setup-node@v4.4.0
+        with: { node-version: '24', cache: 'npm' }
       - run: npm install
       - name: Update jobs
         run: npx ts-node --project tsconfig.scripts.json scripts/jobsUpdate.ts
