@@ -292,8 +292,13 @@ export function FadeInSection({ children, delay = 0, className = '' }: {
     if (!ref.current) return;
     const observer = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting) { setInView(true); observer.disconnect(); }
-    }, { rootMargin: '-60px' })
-    observer.observe(ref.current)
+    }, { rootMargin: '0px 0px -50px 0px' })
+    
+    // Add small delay to ensure layout is complete before observing
+    setTimeout(() => {
+      if (ref.current) observer.observe(ref.current)
+    }, 100)
+    
     return () => observer.disconnect()
   }, [])
 
@@ -320,8 +325,12 @@ export function StaggerGrid({ children, className = '', style = {} }: {
     if (!ref.current) return;
     const observer = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting) { setInView(true); observer.disconnect(); }
-    }, { rootMargin: '-40px' })
-    observer.observe(ref.current)
+    }, { rootMargin: '0px 0px -30px 0px' })
+    
+    setTimeout(() => {
+      if (ref.current) observer.observe(ref.current)
+    }, 100)
+    
     return () => observer.disconnect()
   }, [])
 

@@ -1,32 +1,50 @@
+'use client'
 import { getHomepageData } from '@/lib/supabase'
 import Link from 'next/link'
 import { CryptoTicker, AdSlot, SectionHeader, FadeInSection, StaggerGrid, StaggerItem } from '@/components/UI'
 import { formatPrice, formatLargeNum, formatSalary, timeAgo, truncate } from '@/utils/helpers'
+import { useEffect, useState } from 'react'
 
+export default function HomePage() {
+  const [data, setData] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
 
-export default async function HomePage() {
-  const data = await getHomepageData()
+  useEffect(() => {
+    async function loadData() {
+      const res = await getHomepageData()
+      setData(res)
+      setLoading(false)
+    }
+    loadData()
+  }, [])
 
   return (
     <div>
       <Hero />
       <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 1.25rem' }}>
-        <CryptoTicker coins={data?.crypto || []} />
+        {data && <CryptoTicker coins={data.crypto || []} />}
         <AdSlot width={728} height={90} label="Leaderboard" />
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: '2rem', marginTop: '1.5rem' }} className="main-grid">
-          <div style={{ minWidth: 0 }}>
-            <CryptoSection coins={data?.crypto || []} />
-            <NewsSection articles={data?.news || []} />
-            <GitHubSection repos={data?.github || []} />
+        
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--muted)', fontFamily: 'Poppins' }}>
+            <div className="live-dot" style={{ display: 'inline-block', marginRight: 10 }} /> Loading latest live data...
           </div>
-          <aside style={{ minWidth: 0 }}>
-            <AdSlot width={300} height={250} label="Sidebar" />
-            <AIToolsSidebar tools={data?.aiTools || []} />
-            <JobsSidebar jobs={data?.jobs || []} />
-            <StartupsSidebar startups={data?.startups || []} />
-            <AdSlot width={300} height={250} label="Sidebar 2" />
-          </aside>
-        </div>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: '2rem', marginTop: '1.5rem' }} className="main-grid">
+            <div style={{ minWidth: 0 }}>
+              {data?.crypto?.length > 0 && <CryptoSection coins={data.crypto} />}
+              {data?.news?.length > 0 && <NewsSection articles={data.news} />}
+              {data?.github?.length > 0 && <GitHubSection repos={data.github} />}
+            </div>
+            <aside style={{ minWidth: 0 }}>
+              <AdSlot width={300} height={250} label="Sidebar" />
+              {data?.aiTools?.length > 0 && <AIToolsSidebar tools={data.aiTools} />}
+              {data?.jobs?.length > 0 && <JobsSidebar jobs={data.jobs} />}
+              {data?.startups?.length > 0 && <StartupsSidebar startups={data.startups} />}
+              <AdSlot width={300} height={250} label="Sidebar 2" />
+            </aside>
+          </div>
+        )}
         <AdSlot width={970} height={90} label="Large Leaderboard" />
       </div>
       <style>{`@media(max-width:900px){.main-grid{grid-template-columns:1fr !important}}`}</style>
