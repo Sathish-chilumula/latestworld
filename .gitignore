@@ -6,3 +6,5 @@ dist-scripts/
 .env.local
 .DS_Store
 *.log
+.open-next/
+.open-next-pages/
