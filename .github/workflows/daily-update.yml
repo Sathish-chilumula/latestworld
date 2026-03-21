@@ -2,16 +2,16 @@ name: Daily Update (GitHub + AI Tools)
 
 on:
   schedule:
-    - cron: '0 2 * * *'   # Every day at 2AM UTC
+    - cron: '0 2 * * *'
   workflow_dispatch:
 
 jobs:
   update:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: '20', cache: 'npm' }
+      - uses: actions/checkout@v4.2.2
+      - uses: actions/setup-node@v4.4.0
+        with: { node-version: '24', cache: 'npm' }
       - run: npm install
       - name: Update GitHub trending
         run: npx ts-node --project tsconfig.scripts.json scripts/githubUpdate.ts
