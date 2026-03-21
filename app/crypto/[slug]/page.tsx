@@ -6,10 +6,12 @@ import Link from 'next/link'
 export async function generateStaticParams() {
   try {
     const { crypto } = await getAllSlugs()
-    return (crypto || []).map((item: any) => ({ slug: item.slug }))
+    return crypto && crypto.length > 0
+      ? crypto.map((item: any) => ({ slug: item.slug }))
+      : [{ slug: 'placeholder' }]
   } catch (error) {
     console.warn('[Crypto generateStaticParams] Failed to fetch slugs for static generation:', error)
-    return []
+    return [{ slug: 'placeholder' }]
   }
 }
 

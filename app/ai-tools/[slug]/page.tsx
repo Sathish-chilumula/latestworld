@@ -6,10 +6,12 @@ import Link from 'next/link'
 export async function generateStaticParams() {
   try {
     const { aitools } = await getAllSlugs()
-    return (aitools || []).map((item: any) => ({ slug: item.slug }))
+    return aitools && aitools.length > 0 
+      ? aitools.map((item: any) => ({ slug: item.slug }))
+      : [{ slug: 'placeholder' }]
   } catch (error) {
     console.warn('[AI-Tools generateStaticParams] Failed to fetch slugs for static generation:', error)
-    return []
+    return [{ slug: 'placeholder' }]
   }
 }
 

@@ -6,10 +6,12 @@ import Link from 'next/link'
 export async function generateStaticParams() {
   try {
     const { jobs } = await getAllSlugs()
-    return (jobs || []).map((item: any) => ({ slug: item.slug }))
+    return jobs && jobs.length > 0
+      ? jobs.map((item: any) => ({ slug: item.slug }))
+      : [{ slug: 'placeholder' }]
   } catch (error) {
     console.warn('[Jobs generateStaticParams] Failed to fetch slugs for static generation:', error)
-    return []
+    return [{ slug: 'placeholder' }]
   }
 }
 

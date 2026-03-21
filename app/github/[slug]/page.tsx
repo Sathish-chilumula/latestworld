@@ -6,10 +6,12 @@ import Link from 'next/link'
 export async function generateStaticParams() {
   try {
     const { github } = await getAllSlugs()
-    return (github || []).map((item: any) => ({ slug: item.slug }))
+    return github && github.length > 0
+      ? github.map((item: any) => ({ slug: item.slug }))
+      : [{ slug: 'placeholder' }]
   } catch (error) {
     console.warn('[GitHub generateStaticParams] Failed to fetch slugs for static generation:', error)
-    return []
+    return [{ slug: 'placeholder' }]
   }
 }
 
