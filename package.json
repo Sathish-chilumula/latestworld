@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "build:cloudflare": "npx @opennextjs/cloudflare build && node scripts/prepare-pages.mjs",
+    "build:cloudflare": "npx @opennextjs/cloudflare build && npx esbuild .open-next/server-functions/default/handler.mjs --minify --outfile=.open-next/server-functions/default/handler.mjs --allow-overwrite && node scripts/prepare-pages.mjs",
     "crypto:update": "npx ts-node --project tsconfig.scripts.json scripts/cryptoUpdate.ts",
     "news:update": "npx ts-node --project tsconfig.scripts.json scripts/techNewsUpdate.ts",
     "startups:update": "npx ts-node --project tsconfig.scripts.json scripts/startupNewsUpdate.ts",
