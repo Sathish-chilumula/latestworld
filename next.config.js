@@ -4,6 +4,7 @@ const nextConfig = {
     unoptimized: true,
     remotePatterns: [{ protocol: 'https', hostname: '**' }]
   },
+  optimizeFonts: false,
   experimental: { typedRoutes: false }
 }
 module.exports = nextConfig
