@@ -283,3 +283,53 @@ h1,h2,h3,h4,h5,h6,nav,button,label,.font-display {
   .hide-mobile { display: none !important; }
   .section-title { font-size: 1.1rem; }
 }
+
+/* ── CSS Animations (Replacing Framer Motion) ── */
+.fade-in-section {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: opacity, transform;
+}
+.fade-in-section.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+.stagger-item {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: opacity, transform;
+}
+.stagger-item.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* Navbar drawer transitions */
+.drawer-overlay {
+  transition: opacity 0.22s ease-in-out;
+}
+.drawer-overlay-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+.drawer-overlay-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.drawer-panel {
+  transition: opacity 0.22s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.22s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.drawer-panel-hidden {
+  opacity: 0;
+  transform: translateY(-16px);
+  pointer-events: none;
+}
+.drawer-panel-visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}

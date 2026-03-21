@@ -1,7 +1,6 @@
 'use client'
-import { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
-import { motion, useInView } from 'framer-motion'
 
 // ── Breaking News Ticker ──────────────────────────────────────────────────────
 export function BreakingTicker() {
@@ -288,17 +287,24 @@ export function FadeInSection({ children, delay = 0, className = '' }: {
   className?: string
 }) {
   const ref = useRef<HTMLDivElement>(null)
-  const inView = useInView(ref, { once: true, margin: '-60px' })
+  const [inView, setInView] = useState(false)
+  useEffect(() => {
+    if (!ref.current) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) { setInView(true); observer.disconnect(); }
+    }, { rootMargin: '-60px' })
+    observer.observe(ref.current)
+    return () => observer.disconnect()
+  }, [])
+
   return (
-    <motion.div
+    <div
       ref={ref}
-      className={className}
-      initial={{ opacity: 0, y: 28 }}
-      animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 28 }}
-      transition={{ duration: 0.55, delay, ease: [0.25, 0.46, 0.45, 0.94] }}
+      className={`${className} fade-in-section ${inView ? 'is-visible' : ''}`.trim()}
+      style={delay ? { transitionDelay: `${delay}s` } : undefined}
     >
       {children}
-    </motion.div>
+    </div>
   )
 }
 
@@ -309,22 +315,28 @@ export function StaggerGrid({ children, className = '', style = {} }: {
   style?: React.CSSProperties
 }) {
   const ref = useRef<HTMLDivElement>(null)
-  const inView = useInView(ref, { once: true, margin: '-40px' })
+  const [inView, setInView] = useState(false)
+  useEffect(() => {
+    if (!ref.current) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) { setInView(true); observer.disconnect(); }
+    }, { rootMargin: '-40px' })
+    observer.observe(ref.current)
+    return () => observer.disconnect()
+  }, [])
 
   return (
-    <motion.div
-      ref={ref}
-      className={className}
-      style={style}
-      initial="hidden"
-      animate={inView ? 'visible' : 'hidden'}
-      variants={{
-        hidden: {},
-        visible: { transition: { staggerChildren: 0.07 } }
-      }}
-    >
-      {children}
-    </motion.div>
+    <div ref={ref} className={className} style={style}>
+      {React.Children.map(children, (child, i) => {
+        if (!React.isValidElement(child)) return child;
+        const element = child as React.ReactElement<any>;
+        return React.cloneElement(element, {
+          ...element.props,
+          className: `${element.props.className || ''} stagger-item ${inView ? 'is-visible' : ''}`.trim(),
+          style: { ...element.props.style, transitionDelay: `${i * 0.07}s` }
+        })
+      })}
+    </div>
   )
 }
 
@@ -335,15 +347,8 @@ export function StaggerItem({ children, className = '', style = {} }: {
   style?: React.CSSProperties
 }) {
   return (
-    <motion.div
-      className={className}
-      style={style}
-      variants={{
-        hidden: { opacity: 0, y: 20 },
-        visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.25, 0.46, 0.45, 0.94] } }
-      }}
-    >
+    <div className={className} style={style}>
       {children}
-    </motion.div>
+    </div>
   )
 }

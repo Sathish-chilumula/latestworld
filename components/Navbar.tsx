@@ -2,7 +2,6 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { motion, AnimatePresence } from 'framer-motion'
 
 const NAV = [
   { href: '/crypto',   label: 'Crypto',   icon: '💹', color: '#f59e0b' },
@@ -234,99 +233,86 @@ export default function Navbar() {
       </header>
 
       {/* ── Mobile drawer ── */}
-      <AnimatePresence>
-        {open && (
-          <>
-            {/* Backdrop */}
-            <motion.div
-              key="backdrop"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
+      <div
+        className={`drawer-overlay ${open ? 'drawer-overlay-visible' : 'drawer-overlay-hidden'}`}
+        onClick={() => setOpen(false)}
+        style={{
+          position: 'fixed',
+          inset: 0,
+          zIndex: 190,
+          background: 'rgba(4,13,26,0.5)',
+          backdropFilter: 'blur(4px)',
+        }}
+      />
+      <div
+        className={`drawer-panel ${open ? 'drawer-panel-visible' : 'drawer-panel-hidden'}`}
+        style={{
+          position: 'fixed',
+          top: 60,
+          left: 0,
+          right: 0,
+          zIndex: 195,
+          background: 'var(--surface)',
+          borderBottom: '1px solid var(--border)',
+          boxShadow: '0 16px 40px rgba(0,0,0,0.2)',
+          padding: '0.75rem 1.25rem 1.25rem',
+        }}
+      >
+        {NAV.map((n, i) => {
+          const active = isActive(n.href)
+          return (
+            <div
+              key={n.href}
               onClick={() => setOpen(false)}
               style={{
-                position: 'fixed',
-                inset: 0,
-                zIndex: 190,
-                background: 'rgba(4,13,26,0.5)',
-                backdropFilter: 'blur(4px)',
-              }}
-            />
-            {/* Drawer panel */}
-            <motion.div
-              key="drawer"
-              initial={{ opacity: 0, y: -16 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -16 }}
-              transition={{ duration: 0.22, ease: [0.25, 0.46, 0.45, 0.94] }}
-              style={{
-                position: 'fixed',
-                top: 60,
-                left: 0,
-                right: 0,
-                zIndex: 195,
-                background: 'var(--surface)',
-                borderBottom: '1px solid var(--border)',
-                boxShadow: '0 16px 40px rgba(0,0,0,0.2)',
-                padding: '0.75rem 1.25rem 1.25rem',
+                opacity: open ? 1 : 0,
+                transform: open ? 'translateX(0)' : 'translateX(-12px)',
+                transition: `opacity 0.2s ${i * 0.04}s, transform 0.2s ${i * 0.04}s`,
               }}
             >
-              {NAV.map((n, i) => {
-                const active = isActive(n.href)
-                return (
-                  <motion.div
-                    key={n.href}
-                    initial={{ opacity: 0, x: -12 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.04, duration: 0.2 }}
-                    onClick={() => setOpen(false)}
-                  >
-                    <Link
-                      href={n.href}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 12,
-                        padding: '13px 0',
-                        fontFamily: 'Poppins, sans-serif',
-                        fontWeight: 600,
-                        fontSize: '15px',
-                        color: active ? n.color : 'var(--text)',
-                        textDecoration: 'none',
-                        borderBottom: '1px solid var(--border)',
-                        transition: 'color 0.15s',
-                      }}
-                    >
-                      <span style={{ fontSize: '18px' }}>{n.icon}</span>
-                      {n.label}
-                      {active && (
-                        <span style={{
-                          marginLeft: 'auto',
-                          width: 8,
-                          height: 8,
-                          borderRadius: '50%',
-                          background: n.color,
-                        }} />
-                      )}
-                    </Link>
-                  </motion.div>
-                )
-              })}
-              <div style={{ marginTop: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div className="live-badge"><span className="live-dot" />LIVE</div>
-                <button onClick={() => { toggleDark(); setOpen(false) }} style={{
-                  background: 'var(--bg-soft)', border: '1.5px solid var(--border)',
-                  borderRadius: 8, padding: '8px 16px',
-                  fontFamily: 'Poppins, sans-serif', fontWeight: 600, fontSize: '13px',
-                  color: 'var(--muted)', cursor: 'pointer'
-                }}>
-                  {dark ? '☀️ Light Mode' : '🌙 Dark Mode'}
-                </button>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+              <Link
+                href={n.href}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 12,
+                  padding: '13px 0',
+                  fontFamily: 'Poppins, sans-serif',
+                  fontWeight: 600,
+                  fontSize: '15px',
+                  color: active ? n.color : 'var(--text)',
+                  textDecoration: 'none',
+                  borderBottom: '1px solid var(--border)',
+                  transition: 'color 0.15s',
+                }}
+              >
+                <span style={{ fontSize: '18px' }}>{n.icon}</span>
+                {n.label}
+                {active && (
+                  <span style={{
+                    marginLeft: 'auto',
+                    width: 8,
+                    height: 8,
+                    borderRadius: '50%',
+                    background: n.color,
+                  }} />
+                )}
+              </Link>
+            </div>
+          )
+        })}
+        <div style={{ marginTop: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div className="live-badge"><span className="live-dot" />LIVE</div>
+          <button onClick={() => { toggleDark(); setOpen(false) }} style={{
+            background: 'var(--bg-soft)', border: '1.5px solid var(--border)',
+            borderRadius: 8, padding: '8px 16px',
+            fontFamily: 'Poppins, sans-serif', fontWeight: 600, fontSize: '13px',
+            color: 'var(--muted)', cursor: 'pointer'
+          }}>
+            {dark ? '☀️ Light Mode' : '🌙 Dark Mode'}
+          </button>
+        </div>
+      </div>
 
       <style>{`
         @media (max-width: 768px) { .show-mobile-flex { display: flex !important; } }
