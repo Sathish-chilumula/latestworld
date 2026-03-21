@@ -4,16 +4,19 @@ const nextConfig = {
     unoptimized: true,
     remotePatterns: [{ protocol: 'https', hostname: '**' }]
   },
-  experimental: { 
+  outputFileTracingExcludes: {
+    '*': [
+      'node_modules/@swc/core*',
+      'node_modules/esbuild*',
+      'node_modules/webpack*',
+      'node_modules/terser*',
+      'node_modules/source-map*',
+      'node_modules/source-map-js*',
+      'node_modules/source-map-support*',
+    ]
+  },
+  experimental: {
     typedRoutes: false,
-    outputFileTracingExcludes: {
-      '*': [
-        'node_modules/@swc/core*',
-        'node_modules/esbuild*',
-        'node_modules/webpack*',
-        'node_modules/terser*',
-      ]
-    }
   }
 }
 module.exports = nextConfig
