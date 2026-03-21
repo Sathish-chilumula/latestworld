@@ -7,7 +7,7 @@ async function run() {
 
   const searches = [
     'react developer',
-    'python developer', 
+    'python developer',
     'node developer',
     'software engineer',
     'data scientist'
@@ -25,9 +25,9 @@ async function run() {
       `&content-type=application/json`
 
     console.log(`Fetching: ${what}`)
-    
+
     const res = await fetch(url)
-    
+
     if (!res.ok) {
       console.warn(`Adzuna error for "${what}": ${res.status}`)
       const text = await res.text()
@@ -35,7 +35,7 @@ async function run() {
       continue
     }
 
-    const data = await res.json()
+    const data = await res.json() as { results?: any[] }
     const results = data.results || []
     console.log(`Found ${results.length} jobs for "${what}"`)
 
